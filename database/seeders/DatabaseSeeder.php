@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use Database\Factories\BlockFactory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -14,6 +15,12 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
+        $this->call([
+            LocationSeeder::class,
+            FridgeroomSeeder::class,
+            BlockSeeder::class
+        ]);
+
         // \App\Models\User::factory(10)->create();
 
         // \App\Models\User::factory()->create([
