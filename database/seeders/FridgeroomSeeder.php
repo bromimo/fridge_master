@@ -15,6 +15,6 @@ class FridgeroomSeeder extends Seeder
      */
     public function run()
     {
-        Fridgeroom::factory(100)->create();
+        Fridgeroom::factory(10)->create();
     }
 }
