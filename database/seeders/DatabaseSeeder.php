@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use Database\Factories\BlockFactory;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class DatabaseSeeder extends Seeder

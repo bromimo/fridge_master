@@ -18,8 +18,7 @@ class FridgeroomFactory extends Factory
     public function definition()
     {
         return [
-            'location_id' => Location::inRandomOrder()->first()->id,
-            'temp' => '-' . $this->faker->numberBetween(1, 32)
+            'temp' => $this->faker->numberBetween(5, -32)
         ];
     }
 }

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Block;
 use App\Models\Fridgeroom;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class BlockSeeder extends Seeder
@@ -16,6 +15,9 @@ class BlockSeeder extends Seeder
      */
     public function run()
     {
-        Block::factory(100)->create();
+        $fridgerooms = Fridgeroom::all();
+        foreach ($fridgerooms as $fridgeroom) {
+            Block::factory(rand(20, 100))->create(['fridgeroom_id' => $fridgeroom->id]);
+        }
     }
 }

@@ -13,4 +13,9 @@ use Illuminate\Support\Facades\Route;
 | is assigned the "api" middleware group. Enjoy building your API!
 |
 */
-Route::get('/', \App\Http\Controllers\Api\V1\IndexController::class);
+
+Route::prefix('booking')->namespace('Booking')->group(function () {
+    Route::get('', \App\Http\Controllers\Api\V1\Booking\IndexController::class);
+    Route::post('check', \App\Http\Controllers\Api\V1\Booking\CheckController::class);
+});
+

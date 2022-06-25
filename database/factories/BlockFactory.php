@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Location;
 use App\Models\Fridgeroom;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,7 +18,6 @@ class BlockFactory extends Factory
     public function definition()
     {
         return [
-            'fridgeroom_id' => Fridgeroom::inRandomOrder()->first()->id,
             'is_empty' => $this->faker->boolean(30)
         ];
     }
