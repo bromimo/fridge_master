@@ -11,9 +11,9 @@ class CheckController extends Controller
 {
     public function __invoke(CheckRequest $request)
     {
-        $request->validated();
+        $data = $request->validated();
 
-        $location = Location::where('id', $request->location_id)->get();
+        $location = Location::where('id', $data['location_id'])->get();
 
         return CheckResource::collection($location);
     }

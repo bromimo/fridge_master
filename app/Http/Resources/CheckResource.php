@@ -3,33 +3,12 @@
 namespace App\Http\Resources;
 
 use App\Models\Block;
+use App\Http\Services\BookingServise;
 use Illuminate\Http\Resources\Json\JsonResource;
 
 class CheckResource extends JsonResource
 {
-    protected int $temp_deviation_high = 2;
-    protected int $temp_deviation_low  = 2;
-    protected int $temp_limit_high     = 0;
-
-    protected int $temp;
-
-    public function __construct($resource)
-    {
-        $this->init();
-        parent::__construct($resource);
-    }
-
-    protected function init()
-    {
-        $temp_deviation_high = env('API_BOOKING_TEMP_DEVIATION_HIGH', $this->temp_deviation_high);
-        $this->temp_deviation_high = is_numeric($temp_deviation_high) ? $temp_deviation_high : $this->temp_deviation_high;
-
-        $temp_deviation_low = env('API_BOOKING_TEMP_DEVIATION_LOW', $this->temp_deviation_low);
-        $this->temp_deviation_low = is_numeric($temp_deviation_low) ? $temp_deviation_low : $this->temp_deviation_low;
-
-        $temp_limit_high = env('API_BOOKING_TEMP_LIMIT_HIGH', $this->temp_limit_high);
-        $this->temp_limit_high = is_numeric($temp_limit_high) ? $temp_limit_high : $this->temp_limit_high;
-    }
+    public BookingServise $booking;
 
     /**
      * Transform the resource into an array.
@@ -39,24 +18,33 @@ class CheckResource extends JsonResource
      */
     public function toArray($request)
     {
-        $this->temp = $request->temp;
+        $this->booking = new BookingServise($request->temp, $request->volume);
 
         $blocks = Block::where('is_empty', 1)
                        ->whereIn('fridgeroom_id', function ($query) {
                            $query->select('id')
                                  ->from('fridgerooms')
                                  ->where('location_id', $this->id)
-                                 ->where('temp', '<=', $this->temp + $this->temp_deviation_high)
-                                 ->where('temp', '>=', $this->temp - $this->temp_deviation_low)
-                                 ->where('temp', '<=', $this->temp_limit_high);
+                                 ->where('temp', '<=', $this->booking->temp + $this->booking->temp_deviation_high)
+                                 ->where('temp', '>=', $this->booking->temp - $this->booking->temp_deviation_low)
+                                 ->where('temp', '<=', $this->booking->temp_limit_high);
                        })
+                       ->limit($this->booking->cnt)
                        ->get();
 
-        $result = [
+        $cnt = count($blocks);
+
+        if ($cnt < $this->booking->cnt)
+            return [
+                'error'    => true,
+                'message'  => 'The required number of blocks is missing',
+                'required' => $this->booking->cnt,
+                'exists'   => $cnt
+            ];
+
+        return [
             'location' => $this->title,
             'blocks'   => CheckBlockResource::collection($blocks)
         ];
-
-        return $result;
     }
 }
