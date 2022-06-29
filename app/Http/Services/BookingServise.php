@@ -2,6 +2,12 @@
 
 namespace App\Http\Services;
 
+use Carbon\Carbon;
+use App\Models\Block;
+use App\Models\Location;
+use App\Http\Resources\BlockResource;
+use App\Http\Resources\CheckBlockResource;
+
 class BookingServise
 {
     private int $block_length = 2000;
@@ -10,6 +16,8 @@ class BookingServise
 
     private int $block_volume;
 
+    private float $block_day_price = 10.00;
+
     public int $temp_deviation_high = 2;
     public int $temp_deviation_low  = 2;
     public int $temp_limit_high     = 0;
@@ -17,11 +25,13 @@ class BookingServise
     public int $temp;
     public int $cnt;
 
-    public function __construct(int $temp, int $volume)
+    public array $data;
+
+    public function __construct(array $data)
     {
         $this->init();
-        $this->temp = $temp;
-        $this->cnt = ceil($volume / $this->block_volume);
+        $this->data = $data;
+        $this->cnt = ceil($this->data['volume'] / $this->block_volume);
     }
 
     private function init(): void
@@ -45,5 +55,61 @@ class BookingServise
 
         $temp_limit_high = env('API_BOOKING_TEMP_LIMIT_HIGH', $this->temp_limit_high);
         $this->temp_limit_high = is_numeric($temp_limit_high) ? $temp_limit_high : $this->temp_limit_high;
+
+        $block_day_price = env('API_BOOKING_BLOCK_DAY_PRICE', $this->block_day_price);
+        $this->block_day_price = is_numeric($block_day_price) ? $block_day_price : $this->block_day_price;
+    }
+
+    public function check()
+    {
+        $location = Location::find($this->data['location_id']);
+
+        $blocks = Block::whereIn('fridgeroom_id', function ($query) use ($location) {
+            $query->select('id')
+                  ->from('fridgerooms')
+                  ->where('location_id', $location->id)
+                  ->where('temp', '<=', $this->data['temp'] + $this->temp_deviation_high)
+                  ->where('temp', '>=', $this->data['temp'] - $this->temp_deviation_low)
+                  ->where('temp', '<=', $this->temp_limit_high);
+        })
+                       ->whereDoesntHave('orders', function ($query) {
+                           $query->whereDate('booking_at', '>=', $this->data['booking_at'])
+                                 ->whereDate('booking_to', '<=', $this->data['booking_to']);
+                       })
+                       ->limit($this->cnt)
+                       ->get();
+
+        $cnt = count($blocks);
+
+        if ($cnt < $this->cnt)
+            return [
+                'message'  => 'The required number of blocks is missing',
+                'required' => $this->cnt,
+                'exists'   => $cnt
+            ];
+
+        $booking_at = new Carbon($this->data['booking_at']);
+        $booking_to = new Carbon($this->data['booking_to']);
+
+        $term = $booking_to->diffInDays($booking_at);
+
+        $price = $cnt * $this->block_day_price * $term;
+
+        $blocks_list = [];
+        foreach ($blocks as $block) {
+            $blocks_list[] = $block['id'];
+        }
+
+        return [
+            'location' => $location->title,
+            'count'    => $cnt,
+            'term'     => $term,
+            'price'    => $price,
+            'order'    => json_encode([
+                'blocks'     => $blocks_list,
+                'booking_at' => $this->data['booking_at'],
+                'booking_to' => $this->data['booking_to']
+            ])
+        ];
     }
 }

@@ -14,6 +14,8 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::post('login', \App\Http\Controllers\Api\V1\Auth\LoginController::class);
+
 Route::prefix('booking')->namespace('Booking')->group(function () {
     Route::get('', \App\Http\Controllers\Api\V1\Booking\IndexController::class);
     Route::post('check', \App\Http\Controllers\Api\V1\Booking\CheckController::class);

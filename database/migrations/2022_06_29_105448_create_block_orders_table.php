@@ -13,15 +13,16 @@ return new class extends Migration
      */
     public function up()
     {
-        Schema::create('orders', function (Blueprint $table) {
+        Schema::create('block_order', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')
+            $table->foreignId('order_id')
                   ->references('id')
-                  ->on('users')
+                  ->on('orders')
                   ->cascadeOnDelete();
-            $table->date('booking_at');
-            $table->date('booking_to');
-            $table->string('access_key', 12)->unique();
+            $table->foreignId('block_id')
+                  ->references('id')
+                  ->on('blocks')
+                  ->cascadeOnDelete();
             $table->timestamps();
         });
     }
@@ -33,6 +34,6 @@ return new class extends Migration
      */
     public function down()
     {
-        Schema::dropIfExists('orders');
+        Schema::dropIfExists('block_order');
     }
 };

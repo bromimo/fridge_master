@@ -18,7 +18,6 @@ return new class extends Migration {
                   ->references('id')
                   ->on('fridgerooms')
                   ->cascadeOnDelete();
-            $table->boolean('is_empty')->default(true);
             $table->timestamps();
         });
     }

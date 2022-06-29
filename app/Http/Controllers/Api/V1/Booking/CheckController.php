@@ -2,9 +2,8 @@
 
 namespace App\Http\Controllers\Api\V1\Booking;
 
-use App\Models\Location;
 use App\Http\Controllers\Controller;
-use App\Http\Resources\CheckResource;
+use App\Http\Services\BookingServise;
 use App\Http\Requests\Booking\CheckRequest;
 
 class CheckController extends Controller
@@ -13,8 +12,8 @@ class CheckController extends Controller
     {
         $data = $request->validated();
 
-        $location = Location::where('id', $data['location_id'])->get();
+        $booking = new BookingServise($data);
 
-        return CheckResource::collection($location);
+        return $booking->check();
     }
 }

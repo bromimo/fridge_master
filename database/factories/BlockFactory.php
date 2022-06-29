@@ -18,7 +18,7 @@ class BlockFactory extends Factory
     public function definition()
     {
         return [
-            'is_empty' => $this->faker->boolean(30)
+            //
         ];
     }
 }
