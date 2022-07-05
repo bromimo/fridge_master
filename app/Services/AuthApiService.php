@@ -4,7 +4,7 @@ namespace App\Services;
 
 use Illuminate\Support\Str;
 
-trait AuthApiServece
+trait AuthApiService
 {
     public function response($user)
     {

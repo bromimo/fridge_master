@@ -1,6 +1,5 @@
 <?php
 
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -26,5 +25,6 @@ Route::prefix('auth')->namespace('Auth')->group(function () {
 Route::prefix('booking')->namespace('Booking')->middleware('auth:sanctum')->group(function () {
     Route::get('', \App\Http\Controllers\Api\V1\Booking\IndexController::class);
     Route::post('check', \App\Http\Controllers\Api\V1\Booking\CheckController::class);
+    Route::post('book', \App\Http\Controllers\Api\V1\Booking\BookController::class);
 });
 
