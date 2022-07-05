@@ -14,9 +14,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::post('login', \App\Http\Controllers\Api\V1\Auth\LoginController::class);
+Route::prefix('auth')->namespace('Auth')->group(function () {
+    Route::post('login', \App\Http\Controllers\Api\V1\Auth\LoginController::class);
+    Route::post('register', \App\Http\Controllers\Api\V1\Auth\RegisterController::class);
+    Route::middleware('auth:sanctum')->group(function () {
+        Route::get('logout', \App\Http\Controllers\Api\V1\Auth\LogoutController::class);
+    });
 
-Route::prefix('booking')->namespace('Booking')->group(function () {
+});
+
+Route::prefix('booking')->namespace('Booking')->middleware('auth:sanctum')->group(function () {
     Route::get('', \App\Http\Controllers\Api\V1\Booking\IndexController::class);
     Route::post('check', \App\Http\Controllers\Api\V1\Booking\CheckController::class);
 });

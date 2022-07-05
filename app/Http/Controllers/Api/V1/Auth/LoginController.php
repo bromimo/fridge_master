@@ -2,20 +2,23 @@
 
 namespace App\Http\Controllers\Api\V1\Auth;
 
-use App\Models\User;
+use App\Services\AuthApiServece;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\Auth\LoginRequest;
 
 class LoginController extends Controller
 {
+    use AuthApiServece;
+
     public function __invoke(LoginRequest $request)
     {
-        $data = $request->validated();
+        $cred = $request->validated();
 
-        $user = User::where('email', $data['email'])
-                    ->where('password', hash('sha256', $data['password']))
-                    ->get();
+        if (!Auth::attempt($cred)) {
+            return response()->json(['message' => 'Unauthorized.'], 401);
+        }
 
-        return $user;
+        return $this->response(Auth::user());
     }
 }
