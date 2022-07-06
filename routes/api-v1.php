@@ -19,7 +19,6 @@ Route::prefix('auth')->namespace('Auth')->group(function () {
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('logout', \App\Http\Controllers\Api\V1\Auth\LogoutController::class);
     });
-
 });
 
 Route::prefix('booking')->namespace('Booking')->middleware('auth:sanctum')->group(function () {

@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use Carbon\Carbon;
+use Illuminate\Support\Str;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -23,7 +24,8 @@ class OrderFactory extends Factory
             'user_id' => rand(1, 10),
             'booking_at' => $date->format('Y-m-d'),
             'booking_to' => $date->addDays(rand(5,20))->format('Y-m-d'),
-            'access_key' => $this->faker->bothify('************')
+//            'access_key' => $this->faker->bothify('************')
+            'access_key' => Str::random(12)
         ];
     }
 }
