@@ -25,5 +25,10 @@ Route::prefix('booking')->namespace('Booking')->middleware('auth:sanctum')->grou
     Route::get('', \App\Http\Controllers\Api\V1\Booking\IndexController::class);
     Route::post('check', \App\Http\Controllers\Api\V1\Booking\CheckController::class);
     Route::post('book', \App\Http\Controllers\Api\V1\Booking\BookController::class);
+    Route::get('my', \App\Http\Controllers\Api\V1\Booking\MyBookingsController::class);
+    Route::prefix('user')->group(function () {
+        Route::get('{id}', \App\Http\Controllers\Api\V1\Booking\BookingsController::class);
+    });
+
 });
 
