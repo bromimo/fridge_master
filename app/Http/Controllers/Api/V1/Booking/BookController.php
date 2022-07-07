@@ -12,8 +12,6 @@ class BookController extends Controller
 
     public function __invoke(BookRequest $request)
     {
-        $order = $this->saveNewOrder($this->validated($request));
-
-        return $order;
+        return $this->saveNewOrder($this->validated($request));
     }
 }
