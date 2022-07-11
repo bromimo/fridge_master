@@ -13,15 +13,5 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::namespace('Web')->group(function () {
-    Route::get('', \App\Http\Controllers\Web\IndexController::class);
-    Route::prefix('auth')->namespace('Auth')->group(function () {
-        Route::post('login', \App\Http\Controllers\Web\Auth\LoginController::class)->name('login');
-//        Route::post('register', \App\Http\Controllers\Api\V1\Auth\RegisterController::class);
-//        Route::middleware('auth:sanctum')->group(function () {
-//            Route::get('logout', \App\Http\Controllers\Api\V1\Auth\LogoutController::class);
-//        });
-    });
-});
 
 
