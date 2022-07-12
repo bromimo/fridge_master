@@ -1,0 +1,490 @@
+openapi: 3.0.3
+info:
+  version: 1.0.0
+  title: Fridge Master API
+  description: REST API для букинга блоков в холодильных помещениях.
+  contact:
+    name: broveymimo
+    url: https://github.com/bromimo/fridge_master
+    email: impasbrok@gmail.com
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+servers:
+- url: http://localhost:{port}/api/{basePath}
+  description: Local server
+  variables:
+    port:
+      default: '8000'
+    basePath:
+      default: v1
+paths:
+  /auth/login:
+    post:
+      tags: [ auth ]
+      summary: Выдает токен аутентификации.
+      description: Принимает email и пароль и в случае успешной аутентификации возвращает токен.
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  example: mail@mail.ru
+                  required: true
+                password:
+                  type: string
+                  example: 12345678
+                  required: true
+                  minLength: 8
+      responses:
+        200:
+          description: Успешная аутентификация.
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+                        example: 14|JtSFW0t3zoXEi6i3m8BgvyFed0PmksnGdtJGxbMr
+                      token_type:
+                        type: string
+                        example: Bearer
+        401:
+          $ref: '#/components/responses/401'
+        422:
+          description: Необработанный контент.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Text of message.
+                  errors:
+                    type: object
+                    properties:
+                      email:
+                        type: array
+                        items:
+                          type: string
+                          example: The email must be a valid email address.
+                      password:
+                        type: array
+                        items:
+                          type: string
+                          example: The password must be at least 8 characters.
+
+  /auth/logout:
+    get:
+      tags: [ auth ]
+      summary: Разлогинивает пользователя.
+      description: Удаляет выданный пользователю токен аутентификации.
+#      parameters:
+#        - $ref: '#/components/parameters/Authorization'
+      responses:
+        200:
+          description: Пользователь разлогинен успешно.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: You have succesfully logged out and token was deleted.
+        401:
+          $ref: '#/components/responses/401'
+
+  /auth/register:
+    post:
+      tags: [ auth ]
+      summary: Регистрирует нового пользователя.
+      description: Регистрирует нового пользователя и выдает токен аутентификации.
+      security: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                name:
+                  type: string
+                  example: Vasiliy Terkin
+                  required: true
+                email:
+                  type: string
+                  example: mail@mail.ru
+                  required: true
+                password:
+                  type: string
+                  example: 12345678
+                  required: true
+      responses:
+        422:
+          description: Необработанный контент.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Text of message.
+                  errors:
+                    type: object
+                    properties:
+                      name:
+                        type: array
+                        items:
+                          type: string
+                          example: The name must only contain letters.
+                      email:
+                        type: array
+                        items:
+                          type: string
+                          example: The email has already been taken.
+                      password:
+                        type: array
+                        items:
+                          type: string
+                          example: The password must be at least 8 characters.
+
+  /booking:
+    get:
+      tags: [ booking ]
+      summary: Список доступных блоков.
+      description: Список доступных локаций с информацией о количестве свободных блоков в каждой.
+      responses:
+        200:
+          description: Успешный запрос.
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Fridgeroom'
+                    example:
+                      - location: Уилмингтон (Северная Каролина)
+                        fridgerooms:
+                          - id: 1
+                            temp: -29
+                            blocks:
+                              - id: 6
+                              - id: 7
+                              - id: 8
+                          - id: 2
+                            temp: -17
+                            blocks:
+                              - id: 11
+                              - id: 12
+                              - id: 13
+        401:
+          $ref: '#/components/responses/401'
+
+  /booking/book:
+    post:
+      tags: [ booking ]
+      summary: Бронирование блоков.
+      description: Бронирует перечисленные блоки.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                order:
+                  $ref: '#/components/schemas/Order'
+      responses:
+        200:
+          description: Успешное бронирование блоков.
+          content:
+            application/json:
+              schema:
+                properties:
+                  block_cnt:
+                    type: integer
+                    example: 5
+                  booking_at:
+                    type: string
+                    format: date
+                  booking_to:
+                    type: string
+                    format: date
+                  access_key:
+                    type: string
+                    example: 96AK71pfPInL
+        401:
+          $ref: '#/components/responses/401'
+        422:
+          description: Необработанный контент.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Text of message.
+                  errors:
+                    type: string
+                    example: There are blocks here that are busy.
+
+  /booking/check:
+    post:
+      tags: [ booking ]
+      summary: Подбор блоков.
+      description: Подбирает необходимое количество блоков исходя из заданной локации, температуры, объема продуктов и периода хранения.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                location_id:
+                  type: integer
+                  required: true
+                  example: 1
+                  minimum: 1
+                  maximum: 6
+                volume:
+                  type: integer
+                  required: true
+                  example: 10
+                  minimum: 1
+                  maximum: 999
+                temp:
+                  type: integer
+                  required: true
+                  example: -30
+                  minimum: -32
+                  maximum: 0
+                booking_at:
+                  type: string
+                  required: true
+                  format: date
+                booking_to:
+                  type: string
+                  required: true
+                  format: date
+
+      responses:
+        200:
+          description: Успешный запрос.
+          content:
+            application/json:
+              schema:
+                properties:
+                  location:
+                    type: string
+                    example: Шанхай
+                  count:
+                    type: integer
+                    example: 5
+                  term:
+                    type: integer
+                    example: 24
+                  price:
+                    type: number
+                    example: 50
+                  order:
+                    $ref: '#/components/schemas/Order'
+        401:
+          $ref: '#/components/responses/401'
+        422:
+          description: Необработанный контент.
+          content:
+            application/json:
+              schema:
+                properties:
+                  message:
+                    type: string
+                    example: Text of message.
+                  errors:
+                    type: object
+                    properties:
+                      location_id:
+                        type: array
+                        items:
+                          type: string
+                          example: The selected location id is invalid..
+                      volume:
+                        type: array
+                        items:
+                          type: string
+                          example: The volume must be between 1 and 999.
+                      temp:
+                        type: array
+                        items:
+                          type: string
+                          example: The temp must be between -32 and 0.
+                      booking_at:
+                        type: array
+                        items:
+                          type: string
+                          example: The booking at must be a date after {yesterday()}.
+                      booking_to:
+                        type: array
+                        items:
+                          type: string
+                          example: The booking to must be a date before {yesterday() + 24}.
+
+
+  /booking/my:
+    get:
+      tags: [ booking ]
+      summary: Все мои брони.
+      description: Отображаются все ваши брони за все время с актуальными статусами и затратами.
+      responses:
+        200:
+          description: Успешный запрос.
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Book'
+        401:
+          $ref: '#/components/responses/401'
+
+#  /booking/user/{id}:
+#    get:
+
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        name:
+          type: string
+          example: Vasiliy Terkin
+        email:
+          type: string
+          example: mail@mail.ru
+        email_verified_at:
+          type: string
+          example: null
+        created_at:
+          type: string
+          example: 2022-07-06T10:08:41.000000Z
+        updated_at:
+          type: string
+          example: 2022-07-06T10:08:41.000000Z
+    Block:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+    Fridgeroom:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        temp:
+          type: integer
+          example: -29
+        blocks:
+          $ref: '#/components/schemas/User'
+    Location:
+      type: object
+      properties:
+        location:
+          type: string
+          example: Уилмингтон (Северная Каролина)
+        fridgerooms:
+          $ref: '#/components/schemas/Fridgeroom'
+    Order:
+      type: object
+      properties:
+        blocks:
+          type: array
+          items:
+            type: integer
+          example: [1,2,3,4,5]
+        booking_at:
+          type: string
+          example: 2022-06-28
+        booking_to:
+          type: string
+          example: 2002-07-21
+    Orders:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Vasiliy Terkin
+        email:
+          type: string
+          example: mail@mail.ru
+        books:
+          type: array
+          items:
+    Book:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1
+        status:
+          type: string
+          enum: [actual, finished]
+          example: actual
+        location:
+          type: string
+          example: Уилмингтон (Северная Каролина)
+        temp:
+          type: integer
+          example: -12
+        blocks:
+          type: integer
+          example: 5
+        booking_at:
+          type: string
+          format: date
+        booking_to:
+          type: string
+          format: date
+        term:
+          type: integer
+          example: 20
+        expenses:
+          type: number
+          example: 1150
+        access_key:
+          type: string
+          example: FGzOARrT9GA5
+  responses:
+    401:
+      description: Пользователь не аутентифицирован.
+      content:
+        application/json:
+          schema:
+            properties:
+              message:
+                type: string
+                example: Unauthorized.
+  parameters:
+    Authorization:
+      name: Authorization
+      in: header
+      description: Токен аутентификации.
+      required: true
+      schema:
+        type: string
+        example: Bearer 2|reVJHA2nZlPd3se3YjjcRhfxCMVprb39ykHrGsDb
+security:
+  - bearerAuth: []

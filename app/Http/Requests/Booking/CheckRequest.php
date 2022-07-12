@@ -34,11 +34,13 @@ class CheckRequest extends FormRequest
             ->addDays(env('API_BOOKING_MAX_ORDER_PERIOD', 24))
             ->format('Y-m-d');
 
+        $yesterday = (new Carbon('yesterday'))->format('Y-m-d');
+
         return [
             'location_id' => ['required', 'integer', 'exists:locations,id'],
             'volume'      => ['required', 'integer', $volume_between],
             'temp'        => ['required', 'integer', $temp_between],
-            'booking_at'  => ['required', 'date_format:Y-m-d'],
+            'booking_at'  => ['required', 'date_format:Y-m-d', 'after:' . $yesterday],
             'booking_to'  => ['required', 'date_format:Y-m-d', 'after:booking_at', 'before:' . $last_booking_date]
         ];
     }

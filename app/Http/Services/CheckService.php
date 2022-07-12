@@ -63,11 +63,11 @@ trait CheckService
             'count'    => $cnt,
             'term'     => $term,
             'price'    => $cnt * Booking::getBlockDayPrice() * $term,
-            'order'    => json_encode([
+            'order'    => [
                 'blocks'     => $blocks_list,
                 'booking_at' => $data['booking_at'],
                 'booking_to' => $data['booking_to']
-            ])
+            ]
         ];
     }
 }

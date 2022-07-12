@@ -24,7 +24,10 @@ class BookRequest extends FormRequest
     public function rules()
     {
         return [
-            'order' => ['required', 'json']
+            'order' => ['required'],
+            'order.blocks'     => ['required', 'array'],
+            'order.booking_at' => ['required', 'date_format:Y-m-d'],
+            'order.booking_to' => ['required', 'date_format:Y-m-d']
         ];
     }
 }

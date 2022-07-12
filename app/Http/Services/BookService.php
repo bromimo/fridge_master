@@ -6,39 +6,16 @@ use App\Models\Order;
 use App\Models\Block;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Validator;
-use App\Http\Requests\Booking\BookRequest;
 
 trait BookService
 {
-    public function validated(BookRequest $request): array
-    {
-        $json = $request->validated();
-
-        $validator = Validator::make(json_decode($json['order'], true), [
-            'blocks'     => ['required', 'array'],
-            'booking_at' => ['required', 'date_format:Y-m-d'],
-            'booking_to' => ['required', 'date_format:Y-m-d']
-        ]);
-
-        $errors = $validator->errors();
-
-        if ($errors->messages())
-            return [
-                'message' => 'The order is invalid',
-                'errors'  => $errors
-            ];
-
-        return $validator->validated();
-    }
-
-    public function saveNewOrder(array $data): array
+    public function saveNewOrder(array $data): \Illuminate\Http\JsonResponse|array
     {
         if (!$this->isBlocksEmpty($data))
-            return [
+            return response()->json([
                 'message' => 'The order is invalid.',
                 'errors'  => 'There are blocks here that are busy.'
-            ];
+            ], 422);
 
         $order = new Order([
             'user_id'    => Auth::user()->id,
