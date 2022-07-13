@@ -346,13 +346,32 @@ paths:
               schema:
                 properties:
                   data:
-                    $ref: '#/components/schemas/Book'
+                    $ref: '#/components/schemas/Orders'
         401:
           $ref: '#/components/responses/401'
 
-#  /booking/user/{id}:
-#    get:
-
+  /booking/user/{id}:
+    get:
+      tags: [ booking ]
+      summary: Все брони пользователя.
+      description: Отображаются все брони пользователя за все время с актуальными статусами и затратами.
+      parameters:
+        - name: id
+          in: path
+          description: Идентификатор пользователя.
+          example: 1
+          required: true
+      responses:
+        200:
+          description: Успешный запрос.
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    $ref: '#/components/schemas/Orders'
+        401:
+          $ref: '#/components/responses/401'
 
 components:
   securitySchemes:
@@ -433,6 +452,7 @@ components:
         books:
           type: array
           items:
+            $ref: '#/components/schemas/Book'
     Book:
       type: object
       properties:
