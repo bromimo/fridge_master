@@ -29,10 +29,12 @@ trait BookService
         $order->blocks()->attach($data['blocks']);
 
         return [
-            'block_cnt'  => count($data['blocks']),
-            'booking_at' => $order['booking_at'],
-            'booking_to' => $order['booking_to'],
-            'access_key' => $order['access_key']
+            'data' => [
+                'block_cnt'  => count($data['blocks']),
+                'booking_at' => $order['booking_at'],
+                'booking_to' => $order['booking_to'],
+                'access_key' => $order['access_key']
+            ]
         ];
     }
 

@@ -59,14 +59,16 @@ trait CheckService
         }
 
         return [
-            'location' => $location->title,
-            'count'    => $cnt,
-            'term'     => $term,
-            'price'    => $cnt * Booking::getBlockDayPrice() * $term,
-            'order'    => [
-                'blocks'     => $blocks_list,
-                'booking_at' => $data['booking_at'],
-                'booking_to' => $data['booking_to']
+            'data' => [
+                'location' => $location->title,
+                'count'    => $cnt,
+                'term'     => $term,
+                'price'    => $cnt * Booking::getBlockDayPrice() * $term,
+                'order'    => [
+                    'blocks'     => $blocks_list,
+                    'booking_at' => $data['booking_at'],
+                    'booking_to' => $data['booking_to']
+                ]
             ]
         ];
     }

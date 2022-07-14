@@ -30,7 +30,7 @@ class CheckRequest extends FormRequest
         $temp_between = 'between:' . env('API_BOOKING_TEMP_MIN', -99)
             . ',' . env('API_BOOKING_TEMP_MAX', 0);
 
-        $last_booking_date = (new Carbon($this->query->all()['booking_at']))
+        $last_booking_date = (new Carbon($this->request->all()['booking_at']))
             ->addDays(env('API_BOOKING_MAX_ORDER_PERIOD', 24))
             ->format('Y-m-d');
 

@@ -87,8 +87,6 @@ paths:
       tags: [ auth ]
       summary: Разлогинивает пользователя.
       description: Удаляет выданный пользователю токен аутентификации.
-#      parameters:
-#        - $ref: '#/components/parameters/Authorization'
       responses:
         200:
           description: Пользователь разлогинен успешно.
@@ -96,9 +94,12 @@ paths:
             application/json:
               schema:
                 properties:
-                  message:
-                    type: string
-                    example: You have succesfully logged out and token was deleted.
+                  data:
+                    type: object
+                    properties:
+                      message:
+                        type: string
+                        example: You have succesfully logged out and token was deleted.
         401:
           $ref: '#/components/responses/401'
 
@@ -126,6 +127,23 @@ paths:
                   example: 12345678
                   required: true
       responses:
+        200:
+          description: Успешная регистрация.
+          content:
+            application/json:
+              schema:
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      user:
+                        $ref: '#/components/schemas/User'
+                      token:
+                        type: string
+                        example: 22|8S56017QNImfCb5kPU0dbz9Vd7RiJvcyvrUKIcks
+                      token_type:
+                        type: string
+                        example: Bearer
         422:
           description: Необработанный контент.
           content:
@@ -207,18 +225,21 @@ paths:
             application/json:
               schema:
                 properties:
-                  block_cnt:
-                    type: integer
-                    example: 5
-                  booking_at:
-                    type: string
-                    format: date
-                  booking_to:
-                    type: string
-                    format: date
-                  access_key:
-                    type: string
-                    example: 96AK71pfPInL
+                  data:
+                    type: object
+                    properties:
+                      block_cnt:
+                        type: integer
+                        example: 5
+                      booking_at:
+                        type: string
+                        format: date
+                      booking_to:
+                        type: string
+                        format: date
+                      access_key:
+                        type: string
+                        example: 96AK71pfPInL
         401:
           $ref: '#/components/responses/401'
         422:
@@ -278,20 +299,23 @@ paths:
             application/json:
               schema:
                 properties:
-                  location:
-                    type: string
-                    example: Шанхай
-                  count:
-                    type: integer
-                    example: 5
-                  term:
-                    type: integer
-                    example: 24
-                  price:
-                    type: number
-                    example: 50
-                  order:
-                    $ref: '#/components/schemas/Order'
+                  data:
+                    type: object
+                    properties:
+                      location:
+                        type: string
+                        example: Шанхай
+                      count:
+                        type: integer
+                        example: 5
+                      term:
+                        type: integer
+                        example: 24
+                      price:
+                        type: number
+                        example: 50
+                      order:
+                        $ref: '#/components/schemas/Order'
         401:
           $ref: '#/components/responses/401'
         422:
@@ -436,10 +460,10 @@ components:
           example: [1,2,3,4,5]
         booking_at:
           type: string
-          example: 2022-06-28
+          format: date
         booking_to:
           type: string
-          example: 2002-07-21
+          format: date
     Orders:
       type: object
       properties:

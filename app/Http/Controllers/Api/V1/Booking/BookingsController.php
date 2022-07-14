@@ -9,19 +9,28 @@ use App\Http\Resources\BookingsResource;
 
 class BookingsController extends Controller
 {
-    public function __invoke($id): \Illuminate\Http\JsonResponse
+    public function __invoke($id): array
     {
         $user = User::find($id);
+
+        if (is_null($user)) {
+            return [
+                'message' => 'Non-existen user ID.',
+                'errors' => [
+                    'id' => 'Non-existen user ID.'
+                ]
+            ];
+        }
 
         $orders = Order::where('user_id', $user->id)
                        ->get();
 
-        return response()->json([
+        return [
             'data' => [
                 'name'  => $user->name,
                 'email' => $user->email,
                 'books' => BookingsResource::collection($orders)
             ]
-        ], 200);
+        ];
     }
 }
